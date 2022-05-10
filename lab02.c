@@ -67,6 +67,7 @@ void initialize_timer()
 
 void timer_loop()
 {
+    uint16_t counter = 0;
     // print assignment information
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
@@ -74,10 +75,18 @@ void timer_loop()
     
     CLEARBIT(LED1_TRIS);   //set LED1 as output
     CLEARBIT(LED2_TRIS);   //set LED2 as output
+    CLEARBIT(LED3_TRIS);   //set LED3 as output
     
     while(TRUE)
     {
-        
+       counter = counter + 1;
+
+       if(counter == 1999){
+           lcd_locate(0, 4);
+           lcd_printf('%i',counter);
+           counter = 0;
+           TOGGLELED(LED3_PORT);
+       }
     }
 }
 
@@ -97,5 +106,7 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
     
     IFS0bits.T2IF = 0;
 }
+
+   
 
    
