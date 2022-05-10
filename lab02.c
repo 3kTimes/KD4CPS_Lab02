@@ -1,14 +1,3 @@
-#include "lab02.h"
-
-#include <xc.h>
-#include <p33Fxxxx.h>
-//do not change the order of the following 2 definitions
-#define FCY 12800000UL
-#include <libpic30.h>
-
-#include "types.h"
-#include "lcd.h"
-#include "led.h"
 
 #define FCY_EXT 32768
 
@@ -67,7 +56,7 @@ void initialize_timer()
 
 void timer_loop()
 {
-    uint16_t counter = 0;
+    uint16_t i = 1;
     // print assignment information
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
@@ -79,12 +68,12 @@ void timer_loop()
     
     while(TRUE)
     {
-       counter = counter + 1;
+       i = i + 1;
 
-       if(counter == 1999){
-           lcd_locate(0, 4);
-           lcd_printf('%i',counter);
-           counter = 0;
+       if(i == 2000){
+           //lcd_locate(0, 4);
+           //lcd_printf('%i',i);
+           i = 0;
            TOGGLELED(LED3_PORT);
        }
     }
@@ -107,6 +96,7 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
     IFS0bits.T2IF = 0;
 }
 
+   
    
 
    
