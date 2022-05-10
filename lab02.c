@@ -23,78 +23,46 @@ void initialize_timer()
     // lower 8 bits of the register OSCCON)
     __builtin_write_OSCCONL(OSCCONL | 2);
     
-    //Timer 2
-    
-    T2CONbits.TON = 0; // Disable the Timers
-    
-    T2CONbits.TCKPS = 0x11; // Set Prescaler 256
-
-    T2CONbits.TCS = 0; // Set Clock Source (internal = 0)
-    
-    T2CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating  
-
-    T2CONbits.TSYNC = 0; // T1: Set External Clock Input Synchronization -> no sync
-
-    PR2 = 100000; // Load Timer Periods (???)
-    
-    TMR2 = 0x00; // Reset Timer Values
-
-    IPC0bits.T1IP = 0x01; // Set Interrupt Priority (actually Level 1)
-
-    IFS1bits.T2IF = 0; // Clear Interrupt Flags
-
-    IEC1bits.T2IE = 1; // Enable Interrupts
-
-    T2CONbits.TON = 1; // Enable the Timers
-    
     //Timer 1
     
     T1CONbits.TON = 0; // Disable the Timers
-    
-    T1CONbits.TCKPS = 0x11; // Set Prescaler 256
-
+    T1CONbits.TCKPS = 0b11; // Set Prescaler 256
     T1CONbits.TCS = 1; // Set Clock Source (external = 1)
-    
-    //T1CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating //this line can be ignored, if TCS =  1 (have a look at the manual)  
-
+    T1CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating //this line can be ignored, if TCS =  1 (have a look at the manual)  
     T1CONbits.TSYNC = 0; // T1: Set External Clock Input Synchronization -> no sync
-
-    PR1 = 100000; // Load Timer Periods (???)
-    
+    PR1 = 128; // Load Timer Periods (???)
     TMR1 = 0x00; // Reset Timer Values
-
     IPC0bits.T1IP = 0x01; // Set Interrupt Priority (actually Level 1)
-
+    IFS0bits.T1IF = 0; // Clear Interrupt Flags
+    IEC0bits.T1IE = 1; // Enable Interrupts
+    T1CONbits.TON = 1; // Enable the Timers
+    
+    //Timer 2
+    
+    T2CONbits.TON = 0; // Disable the Timers
+    T2CONbits.TCKPS = 0b11; // Set Prescaler 256
+    T2CONbits.TCS = 0; // Set Clock Source (internal = 0)
+    T2CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating  
+    PR2 = 100; // Load Timer Periods (???)
+    TMR2 = 0x00; // Reset Timer Values
+    IPC1bits.T2IP = 0x01; // Set Interrupt Priority (actually Level 1)
     IFS0bits.T2IF = 0; // Clear Interrupt Flags
-
     IEC0bits.T2IE = 1; // Enable Interrupts
-
-    T2C0Nbits.TON = 1; // Enable the Timers
-
+    T2CONbits.TON = 1; // Enable the Timers
     
     // Timer 3
     
     T3CONbits.TON = 0; // Disable the Timers
-    
-    T1CONbits.TCKPS = 0x00; // Set Prescaler 1:1
-
-    T1CONbits.TCS = 0; // Set Clock Source (internal = 0)
-    
-    T1CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating //this line can be ignored, if TCS =  1 (have a look at the manual)  
-
-    T1CONbits.TSYNC = 0; // T1: Set External Clock Input Synchronization -> no sync
-
-    PR3 = 1000000000000000000000; // Load Timer Periods (highets value possible?)
-    
+    T3CONbits.TCKPS = 0b00; // Set Prescaler 1:1
+    T3CONbits.TCS = 0; // Set Clock Source (internal = 0)
+    T3CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating //this line can be ignored, if TCS =  1 (have a look at the manual)  
+    PR3 = 10; // Load Timer Periods (highets value possible?)
     TMR3 = 0x00; // Reset Timer Values
-
-    IPC2bits.T1IP = 0x01; // Set Interrupt Priority (actually Level 1)
-
-    IFS2bits.T2IF = 0; // Clear Interrupt Flags
-
-    IEC2bits.T2IE = 1; // Enable Interrupts
-
-    T2C2Nbits.TON = 1; // Enable the Timers
+    IPC2bits.T3IP = 0x01; // Set Interrupt Priority (actually Level 1)
+    CLEARBIT(IFS0bits.T3IF); //= 0; // Clear Interrupt Flags
+    IEC0bits.T3IE = 0; // Enable Interrupts --> (important: all)
+    T3CONbits.TON = 1; // Enable the Timers
+  
 }
 
 void timer_loop()
@@ -102,7 +70,10 @@ void timer_loop()
     // print assignment information
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
-    lcd_printf("Group: Ron & Leo");
+    lcd_printf("Group: Boyang & Ron");
+    
+    CLEARBIT(LED1_TRIS);   //set LED1 as output
+    CLEARBIT(LED2_TRIS);   //set LED2 as output
     
     while(TRUE)
     {
@@ -111,11 +82,20 @@ void timer_loop()
 }
 
 void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T1Interrupt(void)
-{ // invoked every ??
+{ 
     
+    TOGGLELED(LED2_PORT);
+    
+    IFS0bits.T1IF = 0;
+      
 }
 
 void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
 { // invoked every ??
+      
+    TOGGLELED(LED1_PORT);
     
+    IFS0bits.T2IF = 0;
 }
+
+   
