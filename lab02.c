@@ -1,3 +1,14 @@
+#include "lab02.h"
+
+#include <xc.h>
+#include <p33Fxxxx.h>
+//do not change the order of the following 2 definitions
+#define FCY 12800000UL
+#include <libpic30.h>
+
+#include "types.h"
+#include "lcd.h"
+#include "led.h"
 
 #define FCY_EXT 32768
 
@@ -95,8 +106,5 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
     
     IFS0bits.T2IF = 0;
 }
-
-   
-   
 
    
