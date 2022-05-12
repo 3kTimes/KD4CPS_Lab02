@@ -12,6 +12,10 @@
 
 #define FCY_EXT 32768
 
+volatile uint8_t min = 0;
+volatile uint8_t sec = 0;
+volatile uint16_t msec = 0;
+
 void initialize_timer()
 {
     // Enable RTC Oscillator -> this effectively does OSCCONbits.LPOSCEN = 1
@@ -56,7 +60,7 @@ void initialize_timer()
     T3CONbits.TCKPS = 0b00; // Set Prescaler 1:1
     T3CONbits.TCS = 0; // Set Clock Source (internal = 0)
     T3CONbits.TGATE = 0; // Set Gated Timer Mode -> don't use gating //this line can be ignored, if TCS =  1 (have a look at the manual)  
-    PR3 = 10; // Load Timer Periods (highets value possible?)
+    PR3 = 0xFFFF; // Load Timer Periods (highest value possible?)
     TMR3 = 0x00; // Reset Timer Values
     IPC2bits.T3IP = 0x01; // Set Interrupt Priority (actually Level 1)
     CLEARBIT(IFS0bits.T3IF); //= 0; // Clear Interrupt Flags
@@ -68,6 +72,7 @@ void initialize_timer()
 void timer_loop()
 {
     uint16_t i = 1;
+    
     // print assignment information
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
@@ -76,16 +81,27 @@ void timer_loop()
     CLEARBIT(LED1_TRIS);   //set LED1 as output
     CLEARBIT(LED2_TRIS);   //set LED2 as output
     CLEARBIT(LED3_TRIS);   //set LED3 as output
+    CLEARBIT(LED5_TRIS);   //set LED3 as output
     
     while(TRUE)
     {
        i = i + 1;
-
+       float store = 0;
+     
        if(i == 2000){
-           //lcd_locate(0, 4);
-           //lcd_printf('%i',i);
-           i = 0;
+           
+           lcd_locate(0, 4);
+           lcd_printf("Cycle:%u", TMR3);
+           
+           lcd_locate(0, 5);
+           store = TMR3 / 12.8e3;
+           lcd_printf("Cycletime:%.3f", store);
+           TMR3 = 0x00;
+           
+           lcd_locate(0, 7);
+           lcd_printf("%02u:%02u.%03u", min,sec,msec);
            TOGGLELED(LED3_PORT);
+           i = 1;
        }
     }
 }
@@ -94,6 +110,7 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T1Interrupt(void)
 { 
     
     TOGGLELED(LED2_PORT);
+    
     
     IFS0bits.T1IF = 0;
       
@@ -104,7 +121,21 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
       
     TOGGLELED(LED1_PORT);
     
+    msec = msec +2;
+    
+    if(msec == 1000){
+        msec = 0;
+        sec++;
+    }
+    if(sec == 60){
+        sec = 0;
+        min++;
+    }
+    
+       
     IFS0bits.T2IF = 0;
 }
+
+
 
    
