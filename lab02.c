@@ -86,7 +86,7 @@ void timer_loop()
     while(TRUE)
     {
        i = i + 1;
-       float store = 0;
+       float store;
      
        if(i == 2000){
            
@@ -94,8 +94,8 @@ void timer_loop()
            lcd_printf("Cycle:%u", TMR3);
            
            lcd_locate(0, 5);
-           store = TMR3 / 12.8e3;
-           lcd_printf("Cycletime:%.3f", store);
+           store = (float) TMR3 / 12800;
+           lcd_printf("Cycletime: %1.3f ms", store);
            TMR3 = 0x00;
            
            lcd_locate(0, 7);
